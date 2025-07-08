@@ -1,40 +1,38 @@
 from flask import Flask, request, redirect, render_template_string
 
-app = Flask(__name__)
-tasks = []  # Lista global para almacenar tareas
+app=Flask(__name__)
 
-# HTML con pequeños errores: sin etiquetas <html>/<body> cerradas, sin validación de entrada
-template = """
-<h1>Mis Tareas</h1>
+taskz = []
+
+template="""
+<h1>Tareas</h1>
 <form method="POST" action="/add">
-    <input type="text" name="task">
-    <input type="submit" value="Agregar">
+<input type="text" name="a">
+<input type="submit" value="OK">
 </form>
 <ul>
-{% for t in tasks %}
-    <li>{{ t }} <a href="/delete/{{ loop.index }}">❌</a></li>  <!-- Error: loop.index en lugar de loop.index0 -->
+{% for t in taskz %}
+    <li>{{ t }} <a href="/del/{{ loop.index }}">🗑</a></li>
 {% endfor %}
 </ul>
 """
 
 @app.route("/")
 def index():
-    return render_template_string(template, tasks=tasks)
+  return render_template_string(template,tasks=taskz) # Incorrect key name used in template
 
-@app.route("/add", methods=["POST"])
-def add():
-    task = request.form["task"]  # No usa .get(), puede lanzar KeyError si falta 'task'
-    tasks.append(task)  # No se valida si está vacío
-    return redirect("/")
+@app.route("/add",methods=["POST"])
+def x():
+ task=request.form["a"]  # No validation
+ taskz.append(task)
+ return redirect("/")
 
-@app.route("/delete/<int:task_id>")
-def delete(task_id):
-    try:
-        tasks.pop(task_id)  # Usando índice incorrecto por el error en loop.index
-    except IndexError:
-        pass  # Error silencioso
-    return redirect("/")
+@app.route("/del/<id>")
+def y(id):
+ try:
+     taskz.pop(int(id)) # No check for index validity
+ except: pass
+ return redirect("/") # No specific error message or logging
 
-if __name__ == "__main__":
-    app.run()
-#
+if __name__=="__main__":
+        app.run()
